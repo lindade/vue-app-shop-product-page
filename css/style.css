@@ -63,9 +63,10 @@ button {
   border: none;
   background-color: #1f96ea;
   color: white;
-  height: 40px;
-  width: 100px;
+  height: 60px;
+  width: 150px;
   font-size: 14px;
+  padding: .5rem 0 3rem 0;
 }
 
 button:hover {

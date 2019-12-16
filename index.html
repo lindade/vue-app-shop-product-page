@@ -21,7 +21,7 @@
       <div class="cart">
         <p>Cart ({{ cart.length }})</p>
       </div>
-      <product :premium="premium" @add-to-cart="updateCart" @empty-cart="emptyItemsFromCart"></product>
+      <product :premium="premium" @add-to-cart="updateCart" @remove-items-from-cart="removeItemsFromCart"></product>
       <a :href="url" target="_blank">Related products</a>
     </div>
 

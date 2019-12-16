@@ -1,3 +1,14 @@
+Vue.component('product-review', {
+  template: `
+    <input v-model="name">
+  `,
+  data() {
+    return {
+      name: null
+    }
+  }
+})
+// reading data from the template-form and binding it to the data
 Vue.component('product-details', {
   props: {
     details: {
@@ -39,17 +50,18 @@ Vue.component('product', {
         </p>
         <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
         
-        <p>Shipping {{ shipping }}</p>
-        
         <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
         v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
         </div>
+
+        <br>
+        <p>Shipping {{ shipping }}</p>
         
         <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
-        Cart</button>
+        Cart </button>
         
         <!-- v-show="cart >= 1" -->
-        <button @click="emptyCart">Empty Cart</button>
+        <button @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
         
 
       </div>
@@ -92,20 +104,18 @@ Vue.component('product', {
     addToCart: function () {
       this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
     },
-    emptyCart() {
-      //if (this.cart >= 1) {
-      this.$emit('empty-cart', this.variants[this.selectedVariant].variantId)
-      //}
+    removeElementsWithIdFromCart() {
+      this.$emit('remove-items-from-cart', this.variants[this.selectedVariant].variantId)
     },
     updateProduct: function (index) {
       this.selectedVariant = index
       console.log(index)
     },
-    // update the inStock boolean depending on if there is still an item in the inventory
+    // update the inStock boolean depending on if there is still an item in the variantQuantity
     //updateInStock() {
-    //  if (this.inventory == 0) {
+    //  if (this.variants[this.selectedVariant].variantQuantity == 0) {
     //    this.inStock = false
-    //  } else if (this.inventory > 0) {
+    //  } else if (this.variants[this.selectedVariant].variantQuantity > 0) {
     //    this.inStock = true
     //  }
     //}
@@ -153,7 +163,7 @@ var app = new Vue({
       //this.cart += 1
       this.cart.push(id)
     },
-    emptyItemsFromCart(id) {
+    removeItemsFromCart(id) {
       for (var i = this.cart.length - 1; i >= 0; i--)
         if (this.cart[i] === id) {
           this.cart.splice(i, 1);

@@ -1,14 +1,84 @@
+// reading data from the template-form and saving it to the data of the product component
 Vue.component('product-review', {
   template: `
-    <input v-model="name">
+    <div>
+      <h5>Leave a review:</h5>
+      <form class="review-form" @submit.prevent="onSubmit">
+
+        <p v-if="errors.length">
+          <b>Please correct the following error(s):</b>
+          <ul>
+            <li v-for="error in errors"> {{ error }} </li>
+          </ul>
+        </p>
+
+        <p>
+          <label for="name">Name:</label>
+          <input id="name" v-model="name" placeholder="name">
+        </p>
+        
+        <p>
+          <label for="review">Review:</label>      
+          <textarea id="review" v-model="review" placeholder="Write your review in here."></textarea>
+        </p>
+        
+        <p>
+          <label for="rating">Rating:</label>
+          <select id="rating" v-model.number="rating">
+            <option>5</option>
+            <option>4</option>
+            <option>3</option>
+            <option>2</option>
+            <option>1</option>
+          </select>
+        </p>
+
+        <!--
+        <p>Would you recommend this product?</p>
+          <input type="radio" name="recommendation" value="yes" v-model="recommended"> Yes, I recommend it.<br>
+          <input type="radio" name="recommendation" value="no" v-model="recommended"> No, I wouldn't<br>
+        -->
+
+        <p>
+          <input type="submit" value="Submit">  
+        </p>
+      </form>
+    </div>
   `,
   data() {
     return {
-      name: null
+      name: null,
+      review: null,
+      rating: null,
+      recommended: null,
+      errors: []
+    }
+  },
+  methods: {
+    onSubmit() {
+      // catch errors and dont submit form if form is empty
+      if (this.name && this.review && this.rating) {
+        let productReview = {
+          name: this.name,
+          review: this.review,
+          rating: this.rating
+        }
+        // let the parent element know that a form was submitted
+        this.$emit('review-submitted', productReview)
+        // after submit reset all values to null to show a empty form
+        this.name = null
+        this.review = null
+        this.rating = null
+      } else {
+        // if form is not filled properly (name, rating, review missing), add those errors to the error array
+        if (!this.name) this.errors.push("Name required.")
+        if (!this.review) this.errors.push("Review required.")
+        if (!this.rating) this.errors.push("Rating required.")
+      }
     }
   }
 })
-// reading data from the template-form and binding it to the data
+
 Vue.component('product-details', {
   props: {
     details: {
@@ -63,8 +133,23 @@ Vue.component('product', {
         <!-- v-show="cart >= 1" -->
         <button @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
         
-
       </div>
+
+      <div>
+        <h2>Reviews</h2>
+        <p v-if="!reviews.length">There are no reviews yet.</p>
+        <ul>
+          <li v-for="review in reviews">
+            <p>{{ review.name }} </p>
+            <p>{{ review.review }} </p>
+            <p>Rating: {{ review.rating }} </p>
+          </li>
+        </ul>
+      </div>
+
+      <!-- listen to review-submitted: when that happens add review -->
+      <product-review @review-submitted="addReview"></product-review>
+
     </div>
   `,
   data() {
@@ -98,6 +183,7 @@ Vue.component('product', {
         variantQuantity: 20
       }],
       onSale: false,
+      reviews: []
     }
   },
   methods: {
@@ -119,6 +205,9 @@ Vue.component('product', {
     //    this.inStock = true
     //  }
     //}
+    addReview(productReview) {
+      this.reviews.push(productReview)
+    }
   },
   computed: {
     title() {

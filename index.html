@@ -18,41 +18,7 @@
 
   <div class="container">
     <div id="app">
-      <div class="product">
-        <div class="product-image">
-          <img v-bind:src="image" v-bind:alt="altText" v-bind:title="toolTip">
-        </div>
-        <div class="product-info">
-          <h1>{{ title }}</h1>
-          <p>{{ description }}</p>
-          <ul>
-            <li v-for="detail in details">{{ detail }}</li>
-          </ul>
-
-          <span v-show="onSale">On Sale!</span>
-
-          <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
-          <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
-            Almost sold out. Only {{ inStock }} remaining.
-          </p>
-          <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
-
-          <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
-            v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
-          </div>
-
-          <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
-            Cart</button>
-
-          <button v-show="cart >= 1" v-on:click="removeFromCart">Remove from Cart</button>
-
-
-
-          <div class="cart">
-            <p>Cart ({{ cart }})</p>
-          </div>
-        </div>
-      </div>
+      <product :premium="premium"></product>
       <a v-bind:href="url" target="_blank">Related products</a>
       <button v-on:click="updateInStock()">update in Stock</button>
     </div>

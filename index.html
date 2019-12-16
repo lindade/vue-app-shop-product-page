@@ -18,9 +18,11 @@
 
   <div class="container">
     <div id="app">
-      <product :premium="premium"></product>
-      <a v-bind:href="url" target="_blank">Related products</a>
-      <button v-on:click="updateInStock()">update in Stock</button>
+      <div class="cart">
+        <p>Cart ({{ cart.length }})</p>
+      </div>
+      <product :premium="premium" @add-to-cart="updateCart" @empty-cart="emptyItemsFromCart"></product>
+      <a :href="url" target="_blank">Related products</a>
     </div>
 
   </div>

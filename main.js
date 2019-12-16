@@ -48,11 +48,10 @@ Vue.component('product', {
         <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
         Cart</button>
         
-        <button v-show="cart >= 1" v-on:click="removeFromCart">Remove from Cart</button>
+        <!-- v-show="cart >= 1" -->
+        <button @click="emptyCart">Empty Cart</button>
         
-        <div class="cart">
-          <p>Cart ({{ cart }})</p>
-        </div>
+
       </div>
     </div>
   `,
@@ -83,36 +82,33 @@ Vue.component('product', {
         variantToolTip: "Bouquet of purple flowers",
         variantDetails: ["6 Agapanthus", "6 Delphimium", "Purple Viola", "Ivy leafs", "Complementary greens"],
         variantOnSale: true,
-        variantInStock: false,
-        variantQuantity: 0
+        variantInStock: true,
+        variantQuantity: 20
       }],
       onSale: false,
-      inventory: 5,
-      url: "https://lindade.github.io/",
-      cart: 0,
     }
   },
   methods: {
     addToCart: function () {
-      this.cart += 1
+      this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
     },
-    removeFromCart() {
-      if (this.cart >= 1) {
-        this.cart -= 1
-      }
+    emptyCart() {
+      //if (this.cart >= 1) {
+      this.$emit('empty-cart', this.variants[this.selectedVariant].variantId)
+      //}
     },
     updateProduct: function (index) {
       this.selectedVariant = index
       console.log(index)
     },
     // update the inStock boolean depending on if there is still an item in the inventory
-    updateInStock() {
-      if (this.inventory == 0) {
-        this.inStock = false
-      } else if (this.inventory > 0) {
-        this.inStock = true
-      }
-    }
+    //updateInStock() {
+    //  if (this.inventory == 0) {
+    //    this.inStock = false
+    //  } else if (this.inventory > 0) {
+    //    this.inStock = true
+    //  }
+    //}
   },
   computed: {
     title() {
@@ -148,6 +144,20 @@ Vue.component('product', {
 var app = new Vue({
   el: '#app',
   data: {
-    premium: true
+    premium: false,
+    cart: [],
+    url: "https://lindade.github.io/"
+  },
+  methods: {
+    updateCart(id) {
+      //this.cart += 1
+      this.cart.push(id)
+    },
+    emptyItemsFromCart(id) {
+      for (var i = this.cart.length - 1; i >= 0; i--)
+        if (this.cart[i] === id) {
+          this.cart.splice(i, 1);
+        }
+    }
   }
 })

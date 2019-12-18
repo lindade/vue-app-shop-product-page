@@ -13,12 +13,7 @@ Vue.component('product-details', {
     <ul>
       <li v-for="detail in details">{{ detail }}</li>
     </ul>
-  `,
-  computed: {
-    variantDetails() {
-      return this.variants[this.selectedVariant].variantDetails
-    }
-  }
+  `
 })
 
 // reading data from the template-form and saving it to the data of the product component
@@ -132,6 +127,7 @@ Vue.component('product-tabs', {
         </ul>
       </div>
 
+      <!-- vue component product-review -->
       <product-review v-show="selectedTab === 'Make a Review'"></product-review>
 
     </div>
@@ -144,7 +140,7 @@ Vue.component('product-tabs', {
   }
 })
 
-// product component
+// main product component
 Vue.component('product', {
   props: {
     premium: {
@@ -155,13 +151,13 @@ Vue.component('product', {
   template: `
     <div class="product">
       <div class="product-image">
-        <img v-bind:src="image" v-bind:alt="altText" v-bind:title="toolTip">
+        <img v-bind:src="image" :alt="altText" v-bind:title="toolTip">
       </div>
       <div class="product-info">
         <h1>{{ title }}</h1>
         <p>{{ description }}</p>
 
-        <!-- vue component -->
+        <!-- vue component product-details -->
         <product-details :details="details"></product-details>
 
         <span v-show="onSale">On Sale!</span>
@@ -187,6 +183,7 @@ Vue.component('product', {
 
       </div>
 
+      <!-- vue component product-tabs -->
       <product-tabs :reviews="reviews"></product-tabs>
 
     </div>
@@ -196,10 +193,7 @@ Vue.component('product', {
       brand: 'Lindas',
       product: 'Flower Bourquet',
       selectedVariant: 0,
-      altText: "Bouquet of pink and white flowers",
-      toolTip: "Bouquet of pink and white flowers",
-      description: 'Bouquet of flowers perfect for speacial occasions or as an everyday gift.',
-      details: ["1 white Lily", "5 white Carnations", "2 pink Gerbera Daisys", "6 pink Carnations", "Complementary greens"],
+      description: 'Bouquet of flowers perfect for special occasions or as an everyday gift.',
       variants: [{
         variantId: 01,
         variantColor: 'MediumVioletRed',
@@ -221,7 +215,6 @@ Vue.component('product', {
         variantInStock: true,
         variantQuantity: 20
       }],
-      onSale: false,
       reviews: []
     }
   },
@@ -257,6 +250,9 @@ Vue.component('product', {
     },
     toolTip() {
       return this.variants[this.selectedVariant].variantToolTip
+    },
+    details() {
+      return this.variants[this.selectedVariant].variantDetails
     },
     onSale() {
       return this.variants[this.selectedVariant].variantOnSale

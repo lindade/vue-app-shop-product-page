@@ -1,11 +1,29 @@
+// display the product details
+Vue.component('product-details', {
+  props: {
+    details: {
+      type: Array,
+      required: true
+    }
+  },
+  template: `
+    <ul>
+      <li v-for="detail in details">{{ detail }}</li>
+    </ul>
+  `,
+  computed: {
+    variantDetails() {
+      return this.variants[this.selectedVariant].variantDetails
+    }
+  }
+})
+
 // reading data from the template-form and saving it to the data of the product component
 Vue.component('product-review', {
   template: `
-    <div>
-      <h5>Leave a review:</h5>
       <form class="review-form" @submit.prevent="onSubmit">
 
-        <p v-if="errors.length">
+        <p class="error" v-if="errors.length">
           <b>Please correct the following error(s):</b>
           <ul>
             <li v-for="error in errors"> {{ error }} </li>
@@ -14,7 +32,7 @@ Vue.component('product-review', {
 
         <p>
           <label for="name">Name:</label>
-          <input id="name" v-model="name" placeholder="name">
+          <input id="name" v-model="name" placeholder="Name">
         </p>
         
         <p>
@@ -33,17 +51,20 @@ Vue.component('product-review', {
           </select>
         </p>
 
-        <!--
         <p>Would you recommend this product?</p>
-          <input type="radio" name="recommendation" value="yes" v-model="recommended"> Yes, I recommend it.<br>
-          <input type="radio" name="recommendation" value="no" v-model="recommended"> No, I wouldn't<br>
-        -->
+        <label> Yes
+          <input type="radio" name="recommendation" value="Yes" v-model="recommended">
+        </label>
+        <label>
+        No
+          <input type="radio" name="recommendation" value="No" v-model="recommended">
+        </label>
+        
 
         <p>
           <input type="submit" value="Submit">  
         </p>
       </form>
-    </div>
   `,
   data() {
     return {
@@ -56,43 +77,34 @@ Vue.component('product-review', {
   },
   methods: {
     onSubmit() {
+      this.errors = []
       // catch errors and dont submit form if form is empty
-      if (this.name && this.review && this.rating) {
+      if (this.name && this.review && this.rating && this.recommended) {
         let productReview = {
           name: this.name,
           review: this.review,
-          rating: this.rating
+          rating: this.rating,
+          recommended: this.recommended
         }
-        // let the parent element know that a form was submitted
+        // let the parent element (product) know that a form was submitted
         this.$emit('review-submitted', productReview)
-        // after submit reset all values to null to show a empty form
+        // after submit reset all values to null to show an empty form
         this.name = null
         this.review = null
         this.rating = null
+        this.recommended = null
       } else {
-        // if form is not filled properly (name, rating, review missing), add those errors to the error array
+        // if form is not filled properly (name, rating, review, recommendation missing), add those errors to the error array
         if (!this.name) this.errors.push("Name required.")
         if (!this.review) this.errors.push("Review required.")
         if (!this.rating) this.errors.push("Rating required.")
+        if (!this.recommended) this.errors.push("Recommendation required.")
       }
     }
   }
 })
 
-Vue.component('product-details', {
-  props: {
-    details: {
-      type: Array,
-      required: true
-    }
-  },
-  template: `
-    <ul>
-      <li v-for="detail in details">{{ detail }}</li>
-    </ul>
-  `
-})
-
+// product component
 Vue.component('product', {
   props: {
     premium: {
@@ -138,11 +150,12 @@ Vue.component('product', {
       <div>
         <h2>Reviews</h2>
         <p v-if="!reviews.length">There are no reviews yet.</p>
-        <ul>
-          <li v-for="review in reviews">
-            <p>{{ review.name }} </p>
-            <p>{{ review.review }} </p>
-            <p>Rating: {{ review.rating }} </p>
+        <ul v-else>
+          <li v-for="(review, index) in reviews" :key="index">
+            <p>{{ review.name }}</p>
+            <p>Rating:{{ review.rating }}</p>
+            <p>{{ review.review }}</p>
+            <!--<p v-if="review.recommended">{{ review.recommended }} </p>-->
           </li>
         </ul>
       </div>
@@ -187,13 +200,13 @@ Vue.component('product', {
     }
   },
   methods: {
-    addToCart: function () {
+    addToCart() {
       this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
     },
     removeElementsWithIdFromCart() {
       this.$emit('remove-items-from-cart', this.variants[this.selectedVariant].variantId)
     },
-    updateProduct: function (index) {
+    updateProduct(index) {
       this.selectedVariant = index
       console.log(index)
     },
@@ -221,9 +234,6 @@ Vue.component('product', {
     },
     toolTip() {
       return this.variants[this.selectedVariant].variantToolTip
-    },
-    details() {
-      return this.variants[this.selectedVariant].variantDetails
     },
     onSale() {
       return this.variants[this.selectedVariant].variantOnSale

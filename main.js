@@ -157,10 +157,16 @@ Vue.component('product', {
         <h1>{{ title }}</h1>
         <p>{{ description }}</p>
 
+        <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
+        v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+        </div>
+
+        <br>
+
         <!-- vue component product-details -->
         <product-details :details="details"></product-details>
 
-        <span v-show="onSale">On Sale!</span>
+        <span v-show="onSale" v-if="inStock">On Sale!</span>
 
         <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
         <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
@@ -168,18 +174,24 @@ Vue.component('product', {
         </p>
         <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
 
-        <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
-        v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
-        </div>
-
-        <br>
         <p>Shipping {{ shipping }}</p>
 
         <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
         Cart </button>
 
-        <!-- v-show="cart >= 1" -->
-        <button @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
+        <!-- cartFilled() {
+          if (this.cart.length >= 1) {
+            console.log("cartFilled == true")
+            return this.cartFilled == true
+          }
+          if (this.cart.length === 0) {
+            console.log("cartFilled == false")
+            return this.cartFilled == false
+          }
+        } 
+        v-show="cartFilled"
+        -->
+        <button :disabled="!inStock" :class="{ 'button:disabled': !inStock }" @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
 
       </div>
 
@@ -201,7 +213,7 @@ Vue.component('product', {
         variantAltText: "Bouquet of pink and white flowers",
         variantToolTip: "Bouquet of pink and white flowers",
         variantDetails: ["1 white Lily", "5 white Carnations", "2 pink Gerbera Daisys", "6 pink Carnations", "Complementary greens"],
-        variantOnSale: false,
+        variantOnSale: true,
         variantInStock: true,
         variantQuantity: 3
       }, {
@@ -212,8 +224,8 @@ Vue.component('product', {
         variantToolTip: "Bouquet of purple flowers",
         variantDetails: ["6 Agapanthus", "6 Delphimium", "Purple Viola", "Ivy leafs", "Complementary greens"],
         variantOnSale: true,
-        variantInStock: true,
-        variantQuantity: 20
+        variantInStock: false,
+        variantQuantity: 0
       }],
       reviews: []
     }
@@ -226,17 +238,10 @@ Vue.component('product', {
       this.$emit('remove-items-from-cart', this.variants[this.selectedVariant].variantId)
     },
     updateProduct(index) {
+      // updates the product information when hovering the respective color square
       this.selectedVariant = index
       console.log(index)
-    },
-    // update the inStock boolean depending on if there is still an item in the variantQuantity
-    //updateInStock() {
-    //  if (this.variants[this.selectedVariant].variantQuantity == 0) {
-    //    this.inStock = false
-    //  } else if (this.variants[this.selectedVariant].variantQuantity > 0) {
-    //    this.inStock = true
-    //  }
-    //}
+    }
   },
   computed: {
     title() {
@@ -287,11 +292,11 @@ var app = new Vue({
   },
   methods: {
     updateCart(id) {
-      //this.cart += 1
       this.cart.push(id)
     },
     removeItemsFromCart(id) {
       for (var i = this.cart.length - 1; i >= 0; i--)
+        // only remove items from cart that have the same id
         if (this.cart[i] === id) {
           this.cart.splice(i, 1);
         }

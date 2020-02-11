@@ -116,7 +116,9 @@ Vue.component('product-tabs', {
       </div>
 
       <div v-show="selectedTab === 'Reviews'">
-        <p v-if="!reviews.length">There are no reviews yet.</p>
+        <div class="p-3">
+          <p v-if="!reviews.length">There are no reviews yet.</p>
+        </div>
         <ul v-else>
           <li v-for="(review, index) in reviews" :key="index">
             <p>{{ review.name }} </p>
@@ -150,53 +152,52 @@ Vue.component('product', {
   },
   template: `
     <div class="product">
-      <div class="product-image">
-        <img v-bind:src="image" :alt="altText" v-bind:title="toolTip">
-      </div>
-      <div class="product-info">
-        <h1>{{ title }}</h1>
-        <p>{{ description }}</p>
-
-        <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
-        v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="product-image ">
+            <img v-bind:src="image" :alt="altText" v-bind:title="toolTip">
+          </div>
         </div>
+        <div class="col-md-6">
+          <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p>{{ description }}</p>
 
-        <br>
+            <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
+            v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+            </div>
 
-        <!-- vue component product-details -->
-        <product-details :details="details"></product-details>
+            <br>
 
-        <span v-show="onSale" v-if="inStock">On Sale!</span>
+            <!-- vue component product-details -->
+            <product-details :details="details"></product-details>
 
-        <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
-        <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
-        Almost sold out. Only {{ inStock }} remaining.
-        </p>
-        <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
+            <span v-show="onSale" v-if="inStock">On Sale!</span>
 
-        <p>Shipping {{ shipping }}</p>
+            <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
+            <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
+            Almost sold out. Only {{ inStock }} remaining.
+            </p>
+            <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
 
-        <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
-        Cart </button>
+            <p>Shipping {{ shipping }}</p>
 
-        <!-- cartFilled() {
-          if (this.cart.length >= 1) {
-            console.log("cartFilled == true")
-            return this.cartFilled == true
-          }
-          if (this.cart.length === 0) {
-            console.log("cartFilled == false")
-            return this.cartFilled == false
-          }
-        } 
-        v-show="cartFilled"
-        -->
-        <button :disabled="!inStock" :class="{ 'button:disabled': !inStock }" @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
+            <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
+            Cart </button>        
+            
+            <!-- TO DO v-show="cartFilled" make Remove Button only visible when something is inside of cart-->
+            <button :disabled="!inStock" :class="{ 'button:disabled': !inStock }" @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
 
+          </div>
+        </div>
       </div>
 
-      <!-- vue component product-tabs -->
-      <product-tabs :reviews="reviews"></product-tabs>
+      <div class="row">
+        <div class="col">
+          <!-- vue component product-tabs -->
+          <product-tabs :reviews="reviews"></product-tabs>
+        </div>
+      </div>
 
     </div>
   `,
@@ -233,6 +234,8 @@ Vue.component('product', {
   methods: {
     addToCart() {
       this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
+      this.cartFilled == true
+      console.log(this.cartFilled == true)
     },
     removeElementsWithIdFromCart() {
       this.$emit('remove-items-from-cart', this.variants[this.selectedVariant].variantId)
@@ -242,6 +245,7 @@ Vue.component('product', {
       this.selectedVariant = index
       console.log(index)
     }
+
   },
   computed: {
     title() {
@@ -270,7 +274,18 @@ Vue.component('product', {
         return "Free"
       }
       return 2.99
-    }
+    },
+    // TO DO:
+    // cartFilled() {
+    //   if (this.cart.length >= 1) {
+    //     console.log("cartFilled == true")
+    //     return this.cartFilled == true
+    //   }
+    //   if (this.cart.length === 0) {
+    //     console.log("cartFilled == false")
+    //     return this.cartFilled == false
+    //   }
+    // }
   },
   // mounted is a lifecicle hook. It is a place to put code that
   // should run as soon as the component is mounted to the DOM

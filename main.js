@@ -116,7 +116,9 @@ Vue.component('product-tabs', {
       </div>
 
       <div v-show="selectedTab === 'Reviews'">
-        <p v-if="!reviews.length">There are no reviews yet.</p>
+        <div class="p-3">
+          <p v-if="!reviews.length">There are no reviews yet.</p>
+        </div>
         <ul v-else>
           <li v-for="(review, index) in reviews" :key="index">
             <p>{{ review.name }} </p>
@@ -150,41 +152,52 @@ Vue.component('product', {
   },
   template: `
     <div class="product">
-      <div class="product-image">
-        <img v-bind:src="image" :alt="altText" v-bind:title="toolTip">
-      </div>
-      <div class="product-info">
-        <h1>{{ title }}</h1>
-        <p>{{ description }}</p>
-
-        <!-- vue component product-details -->
-        <product-details :details="details"></product-details>
-
-        <span v-show="onSale">On Sale!</span>
-
-        <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
-        <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
-        Almost sold out. Only {{ inStock }} remaining.
-        </p>
-        <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
-
-        <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
-        v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="product-image ">
+            <img v-bind:src="image" :alt="altText" v-bind:title="toolTip">
+          </div>
         </div>
+        <div class="col-md-6">
+          <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p>{{ description }}</p>
 
-        <br>
-        <p>Shipping {{ shipping }}</p>
+            <div v-for="(variant, index) in variants" v-bind:key="variant.variantId" class="color-box"
+            v-bind:style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+            </div>
 
-        <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
-        Cart </button>
+            <br>
 
-        <!-- v-show="cart >= 1" -->
-        <button @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
+            <!-- vue component product-details -->
+            <product-details :details="details"></product-details>
 
+            <span v-show="onSale" v-if="inStock">On Sale!</span>
+
+            <p v-if="inStock > 10" :class="[inStock ? 'in-stock-color' : '']">In Stock</p>
+            <p v-else-if="inStock <= 10 && inStock > 0" class="almost-out-of-stock-color">
+            Almost sold out. Only {{ inStock }} remaining.
+            </p>
+            <p v-else :class="[inStock ? '' : 'out-of-stock-color']">Out of Stock</p>
+
+            <p>Shipping {{ shipping }}</p>
+
+            <button v-on:click="addToCart" :disabled="!inStock" :class="{ 'button:disabled': !inStock }">Add to
+            Cart </button>        
+            
+            <!-- TO DO v-show="cartFilled" make Remove Button only visible when something is inside of cart-->
+            <button :disabled="!inStock" :class="{ 'button:disabled': !inStock }" @click="removeElementsWithIdFromCart">Remove Selected Variant From Cart</button>
+
+          </div>
+        </div>
       </div>
 
-      <!-- vue component product-tabs -->
-      <product-tabs :reviews="reviews"></product-tabs>
+      <div class="row">
+        <div class="col">
+          <!-- vue component product-tabs -->
+          <product-tabs :reviews="reviews"></product-tabs>
+        </div>
+      </div>
 
     </div>
   `,
@@ -201,7 +214,7 @@ Vue.component('product', {
         variantAltText: "Bouquet of pink and white flowers",
         variantToolTip: "Bouquet of pink and white flowers",
         variantDetails: ["1 white Lily", "5 white Carnations", "2 pink Gerbera Daisys", "6 pink Carnations", "Complementary greens"],
-        variantOnSale: false,
+        variantOnSale: true,
         variantInStock: true,
         variantQuantity: 3
       }, {
@@ -212,8 +225,8 @@ Vue.component('product', {
         variantToolTip: "Bouquet of purple flowers",
         variantDetails: ["6 Agapanthus", "6 Delphimium", "Purple Viola", "Ivy leafs", "Complementary greens"],
         variantOnSale: true,
-        variantInStock: true,
-        variantQuantity: 20
+        variantInStock: false,
+        variantQuantity: 0
       }],
       reviews: []
     }
@@ -221,22 +234,18 @@ Vue.component('product', {
   methods: {
     addToCart() {
       this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
+      this.cartFilled == true
+      console.log(this.cartFilled == true)
     },
     removeElementsWithIdFromCart() {
       this.$emit('remove-items-from-cart', this.variants[this.selectedVariant].variantId)
     },
     updateProduct(index) {
+      // updates the product information when hovering the respective color square
       this.selectedVariant = index
       console.log(index)
-    },
-    // update the inStock boolean depending on if there is still an item in the variantQuantity
-    //updateInStock() {
-    //  if (this.variants[this.selectedVariant].variantQuantity == 0) {
-    //    this.inStock = false
-    //  } else if (this.variants[this.selectedVariant].variantQuantity > 0) {
-    //    this.inStock = true
-    //  }
-    //}
+    }
+
   },
   computed: {
     title() {
@@ -265,7 +274,18 @@ Vue.component('product', {
         return "Free"
       }
       return 2.99
-    }
+    },
+    // TO DO:
+    // cartFilled() {
+    //   if (this.cart.length >= 1) {
+    //     console.log("cartFilled == true")
+    //     return this.cartFilled == true
+    //   }
+    //   if (this.cart.length === 0) {
+    //     console.log("cartFilled == false")
+    //     return this.cartFilled == false
+    //   }
+    // }
   },
   // mounted is a lifecicle hook. It is a place to put code that
   // should run as soon as the component is mounted to the DOM
@@ -287,11 +307,11 @@ var app = new Vue({
   },
   methods: {
     updateCart(id) {
-      //this.cart += 1
       this.cart.push(id)
     },
     removeItemsFromCart(id) {
       for (var i = this.cart.length - 1; i >= 0; i--)
+        // only remove items from cart that have the same id
         if (this.cart[i] === id) {
           this.cart.splice(i, 1);
         }

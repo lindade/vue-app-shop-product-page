@@ -18,11 +18,13 @@
 
   <div class="container">
     <div id="app">
+      <product :premium="premium" @add-to-cart="updateCart" @remove-items-from-cart="removeItemsFromCart"></product>
       <div class="cart">
         <p>Cart ({{ cart.length }})</p>
       </div>
-      <product :premium="premium" @add-to-cart="updateCart" @remove-items-from-cart="removeItemsFromCart"></product>
-      <a :href="url" target="_blank">Related products</a>
+      <div class="footer text-center">
+        <a :href="url" target="_blank" class="text-dark">Visit my Github page</a>
+      </div>
     </div>
 
   </div>
